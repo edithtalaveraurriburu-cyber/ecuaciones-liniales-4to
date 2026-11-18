@@ -37,8 +37,14 @@ svg{max-width:100%;height:auto;display:block;margin:auto;background:#f3fbff;bord
 .ov{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
 .ov .card{text-align:center;max-width:420px}
 .hide{display:none}
+.wrap{padding-bottom:90px}
+#fend{position:fixed;left:0;right:0;bottom:0;z-index:8;display:none;text-align:center;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:#ffffffee;border-top:4px solid #1fbf5f;box-shadow:0 -4px 14px #0003}
+#fend button{background:#1fbf5f;width:100%;max-width:520px;font-size:20px}
+#toast{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:30;display:none;width:calc(100% - 24px);max-width:520px;box-sizing:border-box;text-align:center;font-weight:bold;font-size:19px;padding:14px 18px;border-radius:18px;background:#c9ffd9;color:#0b5d2a;border:3px solid #1fbf5f;box-shadow:0 8px 24px #0004}
+#toast.err{background:#ffe0e0;color:#8a1230;border-color:#ff3d71}
+#toast button{font-size:16px;padding:6px 12px;margin:6px 4px 0}
 .big{font-size:60px}
-.fab{position:fixed;right:10px;bottom:10px;z-index:8;padding:8px 14px;font-size:15px;border-radius:30px;background:linear-gradient(90deg,#ff3d71,#ff9f1c,#8338ec)}
+.fab{position:fixed;right:10px;bottom:74px;z-index:8;padding:8px 14px;font-size:15px;border-radius:30px;background:linear-gradient(90deg,#ff3d71,#ff9f1c,#8338ec)}
 .fm{font-size:21px;margin:8px 0;padding:10px;border-radius:16px;background:#f3eaff;line-height:1.5}
 .fr{display:inline-block;vertical-align:middle;text-align:center}.fr span{display:block;padding:0 6px}.fr span:first-child{border-bottom:3px solid #2b2b55}
 .chips{display:flex;flex-wrap:wrap;gap:4px;width:100%;justify-content:center}.chips i{font-style:normal;width:25px;height:25px;line-height:25px;text-align:center;border-radius:50%;background:#ddd;color:#555;font-size:12px;font-weight:bold}.chips i.dn{background:#1fbf5f;color:#fff}.chips i.cu{background:#ff9f1c;color:#fff;transform:scale(1.25);box-shadow:0 0 0 3px #ffd000}
@@ -86,6 +92,9 @@ svg.dr{background:#fffbe8}
 
 <button class="fab" id="fhm" style="display:none;left:10px;right:auto;background:#1d6fe0" onclick="goHome()">🏠 Inicio</button>
 <button class="fab" id="fab" style="display:none" onclick="document.getElementById('fo').style.display='flex'">📘 Fórmulas</button>
+<div id="fend"><button class="c2" onclick="terminarYEnviar()">📨 Terminar y Enviar Resultados</button></div>
+<div id="toast"></div>
+<div class="ov" id="cf"><div class="card"><div class="big">📨</div><h2 style="color:#8338ec">¿Terminar y enviar tus resultados?</h2><p class="q" id="cfx"></p><button class="c2" onclick="cfSi()">✅ Sí, enviar</button> <button class="go" onclick="document.getElementById('cf').style.display='none'">↩️ Seguir jugando</button></div></div>
 <div class="ov" id="fo" onclick="this.style.display='none'"><div class="card" style="max-width:470px"><h2 style="color:#8338ec;text-align:center;margin:0">📘 ¡Recuerda las fórmulas!</h2>
 <div class="fm">🔹 <b>Función lineal:</b><br><b style="color:#e6194b">f(x)</b> = <b style="color:#1d6fe0">m</b>·<b style="color:#f58231">x</b> + <b style="color:#2a9d4a">b</b> &nbsp; (y = mx + b)</div>
 <div class="fm">🔹 <b>Pendiente:</b><br><b style="color:#1d6fe0">m</b> = <span class="fr"><span style="color:#f58231">y₂ − y₁</span><span style="color:#d6336c">x₂ − x₁</span></span></div>
@@ -129,8 +138,8 @@ function chkName(){var v=$("nm").value,ok=okName(v);document.querySelectorAll(".
 h.textContent=ok?"✅ ¡Nombre completo listo! Elige un tema para comenzar.":"✍️ Escribe tu nombre completo (nombre y apellido) para activar los ejercicios."}
 function setName(){var v=$("nm").value.trim().replace(/\s+/g," ");if(!okName(v)){var h=$("hi");h.textContent="⚠️ Escribe tu nombre completo: nombre y apellido.";h.classList.add("warn");$("nm").focus();tone(300,0,.25,"sawtooth",.12);return false}
 uname=v.toLowerCase().replace(/(^|\s)\S/g,function(c){return c.toUpperCase()});$("nm").value=uname;$("hi").classList.remove("warn");$("hi").textContent="¡Hola, "+uname+"! 👋 ¡A resolver!";tone(660,0,.2);tone(880,.15,.25);return true}
-function startGame(n,m){if(!setName())return;if(m){MODE=m;TOTAL=m=="ref"?30:20}RES=[];AT=[];inGame=true;PS=[];US=[];USED={};PQ=0;SEEN={};buildSeq();$("fab").style.display="block";$("fhm").style.display="block";score=0;qn=0;last=-1;$("home").classList.add("hide");$("end").classList.add("hide");$("game").classList.remove("hide");$("who").textContent="👤 "+uname;next();if(MODE!="ref")showDemo(MODE)}
-function goHome(){if(qn>0)rec("Salió antes de terminar");clearTimeout(lockT);$("fab").style.display="none";$("fhm").style.display="none";$("fo").style.display="none";$("lock").style.display="none";$("game").classList.add("hide");$("end").classList.add("hide");$("home").classList.remove("hide");$("last").innerHTML=score?"Tu último puntaje: <b>⭐ "+score+" de "+TOTAL+" ("+Math.round(score*100/TOTAL)+"%)</b>":"";$("hi").textContent=name?"¡Hola, "+uname+"! 👋":""}
+function startGame(n,m){if(!setName())return;if(m){MODE=m;TOTAL=m=="ref"?30:20}RES=[];AT=[];inGame=true;PS=[];US=[];USED={};PQ=0;SEEN={};buildSeq();$("fab").style.display="block";$("fhm").style.display="block";$("fend").style.display="block";score=0;qn=0;last=-1;$("home").classList.add("hide");$("end").classList.add("hide");$("game").classList.remove("hide");$("who").textContent="👤 "+uname;next();if(MODE!="ref")showDemo(MODE)}
+function goHome(){if(qn>0)rec("Salió antes de terminar");clearTimeout(lockT);$("fab").style.display="none";$("fhm").style.display="none";$("fend").style.display="none";$("fo").style.display="none";$("lock").style.display="none";$("game").classList.add("hide");$("end").classList.add("hide");$("home").classList.remove("hide");$("last").innerHTML=score?"Tu último puntaje: <b>⭐ "+score+" de "+TOTAL+" ("+Math.round(score*100/TOTAL)+"%)</b>":"";$("hi").textContent=name?"¡Hola, "+uname+"! 👋":""}
 
 /* ---------- CONTEXTO CANAYRE ---------- */
 var THEMES=[
@@ -462,8 +471,13 @@ function pop(){var p=document.createElement("div");p.className="pop";p.textConte
 for(var i=0;i<30;i++){var c=document.createElement("div");c.textContent=pick(["⭐","🎉","💧","💡","✨"]);c.style.cssText="position:fixed;z-index:9;pointer-events:none;font-size:"+rnd(18,34)+"px;left:"+rnd(5,95)+"vw;top:-30px;transition:transform "+(1+Math.random()*1.5)+"s ease-in,opacity 2s";document.body.appendChild(c);(function(c){setTimeout(function(){c.style.transform="translateY(105vh) rotate("+rnd(-360,360)+"deg)";c.style.opacity=.2},30);setTimeout(function(){c.remove()},2600)})(c)}}
 
 var SHEET_URL="https://script.google.com/macros/s/AKfycbzp4bU3jLtQmyXvjdRI7yIN8MXeEt_D2Su-gKubon0b8G9sE5jhYY-jhZG1YlsgV_A8/exec";
-function enviarResultado(){try{var nota=Math.round(score*20/TOTAL),pc=Math.round(score*100/TOTAL),datos={estudiante:uname,tema:TEMAS[MODE],correctas:score+"/"+TOTAL,puntaje:nota,porcentaje:pc+"%",estado:nota>=11?"Aprobado":"Desaprobado"};fetch(SHEET_URL,{method:"POST",mode:"no-cors",body:JSON.stringify(datos)}).catch(function(){})}catch(e){}}
-function fin(){var primeraVez=inGame;rec("Completó los "+TOTAL+" ejercicios");if(primeraVez)enviarResultado();$("fab").style.display="none";$("fhm").style.display="none";$("game").classList.add("hide");var e=$("end");e.classList.remove("hide");var pct=Math.round(score*100/TOTAL),m=pct==100?"🏆 ¡Perfecto, eres un crack de las funciones!":pct>=60?"🌟 ¡Muy buen trabajo!":"💪 ¡Sigue practicando, tú puedes!",nx={pts:["pen","📐 Pendiente"],pen:["rec","📈 Tipo de recta"],rec:["tab","📋 Tabulación"]}[MODE];
+var PAYLOAD=null,toastT=null;
+function toast(h,ms,err){var t=$("toast");clearTimeout(toastT);t.className=err?"err":"";t.innerHTML=h;t.style.display="block";if(ms)toastT=setTimeout(function(){t.style.display="none"},ms)}
+function enviarDatos(d){toast("⏳ Enviando tus resultados…");function mal(){toast("⚠️ No se pudo enviar. Revisa tu conexión.<br><button class='c1' onclick='enviarDatos(PAYLOAD)'>🔁 Reintentar</button><button class='go' onclick=\"document.getElementById('toast').style.display='none'\">✖ Cerrar</button>",0,true)}try{fetch(SHEET_URL,{method:"POST",mode:"no-cors",body:JSON.stringify(d)}).then(function(){toast("✅ Tus resultados han sido enviados correctamente",9000)}).catch(mal)}catch(e){mal()}}
+function enviarResultado(){var nota=Math.round(score*20/TOTAL),pc=Math.round(score*100/TOTAL);PAYLOAD={estudiante:uname,tema:"AIP sin límites - Funciones lineales - "+TEMAS[MODE],correctas:score+"/"+TOTAL,puntaje:nota,porcentaje:pc+"%",estado:nota>=11?"Aprobado":"Desaprobado"};enviarDatos(PAYLOAD)}
+function terminarYEnviar(){if(!inGame)return;document.getElementById("cfx").textContent="Llevas "+score+" respuestas correctas de "+TOTAL+" ejercicios. Tu nota se calculará con lo que llevas hasta ahora.";document.getElementById("cf").style.display="flex"}
+function cfSi(){document.getElementById("cf").style.display="none";if(inGame){clearTimeout(lockT);fin(true)}}
+function fin(antes){var primeraVez=inGame;rec(antes===true?"Terminó antes de completar ("+score+"/"+TOTAL+")":"Completó los "+TOTAL+" ejercicios");if(primeraVez)enviarResultado();$("fab").style.display="none";$("fhm").style.display="none";$("fend").style.display="none";$("game").classList.add("hide");var e=$("end");e.classList.remove("hide");var pct=Math.round(score*100/TOTAL),m=pct==100?"🏆 ¡Perfecto, eres un crack de las funciones!":pct>=60?"🌟 ¡Muy buen trabajo!":"💪 ¡Sigue practicando, tú puedes!",nx={pts:["pen","📐 Pendiente"],pen:["rec","📈 Tipo de recta"],rec:["tab","📋 Tabulación"]}[MODE];
 e.innerHTML='<div class="big">🏅</div><h2>¡Terminaste, '+uname+'!</h2><p class="q">✅ Respuestas correctas: '+score+' de '+TOTAL+'</p><p class="q">⭐ Puntaje total: '+score+' / '+TOTAL+' puntos</p><p class="q">📊 Porcentaje: '+pct+'%</p><p class="q">'+m+'</p>'+qrEnd()+'<button class="go" onclick="startGame()">🔄 Repetir tema</button> '+(nx?'<button class="c2" onclick="startGame(0,\''+nx[0]+'\')">➡️ '+nx[1]+'</button> ':'')+'<button class="c1" onclick="goHome()">🏠 Inicio</button>';
 [523,659,784,1047,784,1047,1319].forEach(function(f,i){tone(f,i*.13,.3)});say("¡Felicitaciones "+uname+"!")}
 
